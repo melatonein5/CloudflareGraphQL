@@ -13,20 +13,23 @@ const UrlBase string = "https://api.cloudflare.com/client/v4/graphql"
 //Exportable public functions
 
 type API struct {
-	UrlPath   string
-	AuthToken string
-	Payload   string
+	authToken string
+}
+
+//Set Functions
+func (api API) SetAuthToken(token string) {
+	api.authToken = token
 }
 
 //Exportable functions
 
 //Get() is a function which will perform a simple get request
-func (api API) Get() (string, error) {
+func (api API) Get(urlPath string) (string, error) {
 	//Define the HTTP method to use
 	method := "GET"
 
 	//Define the full URL
-	url := UrlBase + api.UrlPath
+	url := UrlBase + urlPath
 
 	//Create the HTTP client and request, and check and return errors
 	client := &http.Client{}
@@ -35,7 +38,7 @@ func (api API) Get() (string, error) {
 		return "", err
 	}
 	//Add the API header as an authorization header
-	req.Header.Add("Authorization", api.AuthToken)
+	req.Header.Add("Authorization", api.authToken)
 
 	//Execute the request and check for errors
 	res, err := client.Do(req)
@@ -53,23 +56,23 @@ func (api API) Get() (string, error) {
 }
 
 //Post is a private function which performs a simple post request
-func (api API) Post() (string, error) {
+func (api API) Post(urlPath, payload string) (string, error) {
 	//Define the HTTP method to use
 	method := "POST"
 
 	//Define the full URL
-	url := UrlBase + api.UrlPath
+	url := UrlBase + urlPath
 
 	//Create the HTTP client and request, and check for errors
 	client := &http.Client{}
 	//Convert the string payload into a ioreader
-	reqBody := strings.NewReader(api.Payload)
+	reqBody := strings.NewReader(payload)
 	req, err := http.NewRequest(method, url, reqBody)
 	if err != nil {
 		return "", err
 	}
 	//Add the API header as an authorization header
-	req.Header.Add("Authorization", api.AuthToken)
+	req.Header.Add("Authorization", api.authToken)
 
 	//Execute the request and check for errors
 	res, err := client.Do(req)
