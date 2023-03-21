@@ -9,15 +9,24 @@ import (
 //Base API URL (needs to be exportable)
 const UrlBase string = "https://api.cloudflare.com/client/v4/graphql"
 
-//Private functions
+//Structure to make the functions Exportable
+//Exportable public functions
 
-//getReq() is a private function which will perform a simple get request
-func getReq(urlPath, authToken string) (string, error) {
+type API struct {
+	UrlPath   string
+	AuthToken string
+	Payload   string
+}
+
+//Exportable functions
+
+//Get() is a function which will perform a simple get request
+func (api API) Get() (string, error) {
 	//Define the HTTP method to use
 	method := "GET"
 
 	//Define the full URL
-	url := UrlBase + urlPath
+	url := UrlBase + api.UrlPath
 
 	//Create the HTTP client and request, and check and return errors
 	client := &http.Client{}
@@ -26,7 +35,7 @@ func getReq(urlPath, authToken string) (string, error) {
 		return "", err
 	}
 	//Add the API header as an authorization header
-	req.Header.Add("Authorization", authToken)
+	req.Header.Add("Authorization", api.AuthToken)
 
 	//Execute the request and check for errors
 	res, err := client.Do(req)
@@ -43,24 +52,24 @@ func getReq(urlPath, authToken string) (string, error) {
 	return string(body), nil
 }
 
-//postReq is a private function which performs a simple post request
-func postReq(urlPath, authToken, payload string) (string, error) {
+//Post is a private function which performs a simple post request
+func (api API) Post() (string, error) {
 	//Define the HTTP method to use
 	method := "POST"
 
 	//Define the full URL
-	url := UrlBase + urlPath
+	url := UrlBase + api.UrlPath
 
 	//Create the HTTP client and request, and check for errors
 	client := &http.Client{}
 	//Convert the string payload into a ioreader
-	reqBody := strings.NewReader(payload)
+	reqBody := strings.NewReader(api.Payload)
 	req, err := http.NewRequest(method, url, reqBody)
 	if err != nil {
 		return "", err
 	}
 	//Add the API header as an authorization header
-	req.Header.Add("Authorization", authToken)
+	req.Header.Add("Authorization", api.AuthToken)
 
 	//Execute the request and check for errors
 	res, err := client.Do(req)
